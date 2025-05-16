@@ -14,7 +14,8 @@ vdisk
 
 *.ans
 *.out
-tests/workspace
+tests/workspace/*.in
+tests/workspace/*.out
 .vscode
 *.init
 *.imp

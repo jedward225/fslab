@@ -379,6 +379,40 @@ int main(int argc, char* argv[])
 从读开始可能更简单一点，你可以先写一个 hard code 的片段插入到 `fuse_main` 之前，
 内容是填充一个最简单的文件结构到磁盘上，然后先写 `fs_read`，并自己测试一下。
 
+## 如何调试
+
+首先，阅读 Makefile 你就应该能够理解整个程序是怎么被启动的。比如
+
+```Makefile
+debug: cleand init fuse umount
+	./fuse -s -f $(MNTDIR)
+```
+
+你想自己用 gdb 启动，以下是把指令全部拎出来执行的样子：
+
+```bash
+make cleand
+# rm -rf *~
+# -umount -l $(MNTDIR)
+# rm -rf $(VDISK) $(MNTDIR)
+make init
+# mkdir -p $(VDISK)
+# echo $(abspath $(VDISK)) > fuse~
+# mkdir -p $(MNTDIR)
+make fuse
+# ...
+make umount
+# ...
+gdb ./fuse
+run -s -f mnt
+```
+
+当然这可能有点太长了，你可以自己写一些 Makefile 目标来简化这个过程。
+
+简单来说，Makefile 和多个 sh 文件没什么本质区别，只是他会按照依赖关系来执行，稍微读一读就能懂的，如果你有任何疑问，AI 可以很好地帮助你。
+
+> PS: 虽然我们启动的程序叫 `fuse`，但其实他就是你写的 `fs.c` 编译的产物，而不是 `fuse` 的什么怪东西，不要害怕去调试他
+
 ## 实现细节
 
 我们在 `fs.c` 里写了大量的注释，这些注释大致解释了你应该在每个函数里实现什么功能，我们没有完整地把所有细节都列出来，而且错误处理部分我们只列了必须实现的部分。
